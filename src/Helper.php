@@ -20,7 +20,9 @@ class Helper
         'user' => 'root',
         'password' => '',
         'host' => '',
-        'driver' => 'pdo_mysql'
+        'driver' => 'pdo_mysql',
+        'charset'  => 'utf8',
+        'driverOptions' => [1002 => 'SET NAMES utf8']
     ];
 
     private static $connectionParameterMap = [
