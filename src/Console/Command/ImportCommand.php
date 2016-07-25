@@ -38,14 +38,14 @@ class ImportCommand extends Command
                 'data-file',
                 'd',
                 InputOption::VALUE_REQUIRED,
-                'Data file path',
+                'Path to data file, or directory with files to be imported.',
                 realpath(__DIR__ . "/../../typo3conf/LocalConfiguration.php")
             )
             ->addOption(
                 'config-file',
                 'c',
                 InputOption::VALUE_OPTIONAL,
-                'Configuration file path',
+                'Path typo3 configuration file, db configs fill be loaded from this file.',
                 realpath(__DIR__ . "/../../typo3conf/LocalConfiguration.php")
             )
             ->addOption(
@@ -89,6 +89,11 @@ class ImportCommand extends Command
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'Unsuccessful imported files will be moved to given directory if option is set.'
+            )->addOption(
+                'no-trim',
+                null,
+                InputOption::VALUE_NONE,
+                'Disables trimming of field values.'
             );
     }
 
@@ -110,7 +115,6 @@ class ImportCommand extends Command
         $importFiles = $this->getFilesToImport();
 
         foreach ($importFiles as $file) {
-
             $output->writeln(sprintf('<info>Import file: %s</info>', $file));
 
             try {
@@ -137,14 +141,15 @@ class ImportCommand extends Command
      *
      * @param $file
      */
-    protected function handleSuccess($file){
+    protected function handleSuccess($file)
+    {
         $this->outputInterface->writeln(sprintf('<info>Successfully imported: %s</info>', $file));
 
         // move file if required
-        if($this->inputInterface->getOption('success-directory')) {
+        if ($this->inputInterface->getOption('success-directory')) {
             $path = $this->inputInterface->getOption('success-directory');
             Helper::ensureDirectoryExists($path);
-            rename($file, $path.'/'.pathinfo($file, PATHINFO_BASENAME));
+            rename($file, $path . '/' . pathinfo($file, PATHINFO_BASENAME));
         }
     }
 
@@ -153,12 +158,13 @@ class ImportCommand extends Command
      *
      * @param $file
      */
-    protected function handleFailedFile($file){
+    protected function handleFailedFile($file)
+    {
         // move file if required
-        if($this->inputInterface->getOption('error-directory')) {
+        if ($this->inputInterface->getOption('error-directory')) {
             $path = $this->inputInterface->getOption('error-directory');
             Helper::ensureDirectoryExists($path);
-            rename($file, $path.'/'.pathinfo($file, PATHINFO_BASENAME));
+            rename($file, $path . '/' . pathinfo($file, PATHINFO_BASENAME));
         }
     }
 
@@ -216,6 +222,16 @@ class ImportCommand extends Command
     }
 
     /**
+     * Returns true if imported fields should be trimmed
+     *
+     * @return bool
+     */
+    protected function trimValues()
+    {
+        return !$this->inputInterface->getOption('no-trim');
+    }
+
+    /**
      * List of files, that needs to bee imported
      *
      * @return array
@@ -242,7 +258,13 @@ class ImportCommand extends Command
         $entity = [];
 
         foreach ($this->getDefaultValues() as $defaultValue) {
-            list($field, $value) = explode(':', $defaultValue);
+            list($field, $value) = explode(':', $defaultValue, 2);
+
+            // check if value is dynamic
+            if (Helper::isDynamicDefault($value)) {
+                $value = Helper::resolveDynamicValue($value);
+            }
+
             $entity[$field] = $value;
         }
 
@@ -412,6 +434,11 @@ class ImportCommand extends Command
             }
         }
 
+        // trim values if required
+        if ($this->trimValues()) {
+            $entry = array_map('trim', $entry);
+        }
+
         return $entry;
     }
 
@@ -435,7 +462,7 @@ class ImportCommand extends Command
 
         // add columns with configured mapping
         foreach ($fieldNameMap as $mapItem) {
-            list($dbName, $fileName) = explode(':', $mapItem);
+            list($dbName, $fileName) = explode(':', $mapItem, 2);
             $columns[$dbName] = $fileName;
         }
 

@@ -97,4 +97,55 @@ class Helper
         if(!is_dir($path) || !is_writeable($path))
             throw new \Exception(sprintf('Unable to write to: %s', $path));
     }
+
+    /**
+     * Check whether value is dynamic
+     *
+     * @return bool
+     */
+    public static function isDynamicDefault($value){
+        return (bool)preg_match("/^\\{\\w+:(.*?)\\}$/", $value);
+    }
+
+    /**
+     * Return type of dynamic value
+     *
+     * @param $value
+     * @return mixed
+     */
+    public static function getDynamicValueType($value){
+        if(preg_match("/^\\{(\\w+):.*?\\}$/", $value, $matches) == 1) {
+            return $matches[1];
+        }
+    }
+
+    /**
+     * Resolve dynamic value to string
+     *
+     * @param $value
+     * @return int|string
+     */
+    public static function resolveDynamicValue($value){
+        $type = self::getDynamicValueType($value);
+
+        if($type == 'date')
+            return self::resolveDynamicDate($value);
+    }
+
+    /**
+     * Resolve dynamic date to string
+     *
+     * @param $value
+     * @return int|string
+     */
+    public static function resolveDynamicDate($value) {
+        if(preg_match("/^\\{\\w+:(.*?)\\}$/", $value, $matches) == 1) {
+            $format = $matches[1];
+
+            $date = new \DateTime();
+            return $date->format($format);
+        }
+
+        return 0;
+    }
 }
