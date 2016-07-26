@@ -4,6 +4,7 @@ namespace IronShark\Typo3DataImporter\Console\Command;
 
 use Doctrine\DBAL\Schema\SchemaException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,12 +35,10 @@ class ImportCommand extends Command
         $this
             ->setName('import')
             ->setDescription('Import file to database')
-            ->addOption(
+            ->addArgument(
                 'data-file',
-                'd',
-                InputOption::VALUE_REQUIRED,
-                'Path to data file, or directory with files to be imported.',
-                realpath(__DIR__ . "/../../typo3conf/LocalConfiguration.php")
+                InputArgument::REQUIRED,
+                'Path to data file, or directory with files to be imported.'
             )
             ->addOption(
                 'config-file',
@@ -52,7 +51,7 @@ class ImportCommand extends Command
                 'column',
                 null,
                 InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
-                'Configuration file path'
+                'Import file column, to db field mapping in following format db_field:ImportFileColumn'
             )
             ->addOption(
                 'table',
@@ -75,7 +74,7 @@ class ImportCommand extends Command
             )
             ->addOption(
                 'default',
-                null,
+                'd',
                 InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'Default values, to insert some values not listed in the import file.'
             )
@@ -238,7 +237,7 @@ class ImportCommand extends Command
      */
     protected function getFilesToImport()
     {
-        $path = $this->inputInterface->getOption('data-file');
+        $path = $this->inputInterface->getArgument('data-file');
         $path = realpath($path);
 
         if (is_dir($path)) {

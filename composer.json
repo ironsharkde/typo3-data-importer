@@ -1,7 +1,7 @@
 {
     "name": "ironshark/typo3-data-importer",
     "type": "library",
-    "description": "Import data from XLS files to typo3 database",
+    "description": "Import data from XLS files into an Typo3 database",
     "keywords": [
         "ironshark",
         "typo3-data-importer",
