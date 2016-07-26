@@ -15,6 +15,7 @@ Features
 * Customizable value transformig
 * Updates for existing rows
 * Moving successful / failed files
+* Transaction rollbacks on errors
 
 ## Install
 
