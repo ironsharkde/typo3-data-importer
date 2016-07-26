@@ -1,13 +1,30 @@
 {
     "name": "ironshark/typo3-data-importer",
+    "type": "library",
     "description": "Import data from XLS files to typo3 database",
+    "keywords": [
+        "ironshark",
+        "typo3-data-importer",
+        "import",
+        "xlsx"
+    ],
+    "homepage": "https://github.com/ironsharkde/typo3-data-importer",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anton Pauli",
+            "email": "pauli@ironshark.de"
+            "homepage": "https://github.com/TUNER88",
+            "role": "Developer"
+        }
+    ],
     "require": {
+        "php" : "~5.5|~7.0",
         "symfony/console": "^3.1",
         "doctrine/dbal": "^2.5",
         "nikic/php-parser": "^2.1",
         "box/spout": "^2.5"
     },
-    "license": "MIT",
     "authors": [
         {
             "name": "Anton Pauli",
